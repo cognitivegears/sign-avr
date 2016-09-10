@@ -91,10 +91,10 @@ void doMarquee() {
 void runSpecial(int valType) {
   switch(valType)
   {
-   case '00': doMarquee();break;
-   case '01': doFlash(10,500); break;
-   case '02': allOn(); break;
-   case '03': allOff(); break;
+    case 0: doMarquee();break;
+    case 1: doFlash(10,500); break;
+    case 2: allOn(); break;
+    case 3: allOff(); break;
   }
 
   // Reset lights on current letter
