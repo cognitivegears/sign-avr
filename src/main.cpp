@@ -49,16 +49,6 @@ void setStripColor() {
   }
   strip[currentLetterNum].show();
 }
-
-void doFlash(int numTimes,int myDelay) {
- for(int i=0; i<numTimes;i++) {
-    allOn();
-    delay(myDelay);
-    allOff();
-    delay(myDelay);
-  }
-}
-
 void allOn() {
   redColor = FULL_BRIGHT; greenColor = FULL_BRIGHT; blueColor = FULL_BRIGHT;
   for(int i=0; i<NUM_STRIPS;i++) {
@@ -74,6 +64,16 @@ void allOff() {
     setStripColor();  
   }
 }
+
+void doFlash(int numTimes,int myDelay) {
+ for(int i=0; i<numTimes;i++) {
+    allOn();
+    delay(myDelay);
+    allOff();
+    delay(myDelay);
+  }
+}
+
 
 void doMarquee() {
   redColor = FULL_BRIGHT;
