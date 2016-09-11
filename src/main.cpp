@@ -26,7 +26,7 @@ Adafruit_NeoPixel strip[NUM_STRIPS] = {
 // Serial variables
 char cmd = NULL;
 int curCharNum = 0;
-char[7] valueList = NULL;
+char valueList[8] = {};
 
 void setup()
 {
@@ -87,7 +87,7 @@ void runSpecial(int valType) {
 void resetCommand() {
   cmd = NULL;
   curCharNum = 0;
-  for(int i=0; i<7;i++) {
+  for(int i=0; i<8;i++) {
     valueList[i] = NULL;
   }
 }
@@ -139,8 +139,7 @@ void loop()
         case 's': runSpecial(lightNumber); break;
       }
       // After running command, clear it before next iteration
-      cmd = NULL;
-      firstChar = NULL;
+      resetCommand();
     }
     curCharNum++;
   }
