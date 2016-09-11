@@ -23,45 +23,36 @@ Adafruit_NeoPixel strip[NUM_STRIPS] = {
   Adafruit_NeoPixel(numLed[4],STARTPIN+4, NEO_GRB + NEO_KHZ800)  // E
 };
 
-// Set up some global vars
-int redColor   = OFF;
-int greenColor = OFF;
-int blueColor  = OFF;
-int currentLetterNum  = 0;
-
 // Serial variables
 char cmd = NULL;
-char firstChar = NULL;
+int curCharNum = 0;
+char[7] valueList = NULL;
 
 void setup()
 {
   // Start serial at 38400 baud
-  Serial.begin(38400);
+  Serial.begin(9600);
   for(int i=0; i<NUM_STRIPS;i++) {
     strip[i].begin();
     strip[i].setBrightness(FULL_BRIGHT);
   }
 }
 
-void setStripColor() {
-  for(int i=0; i<numLed[currentLetterNum]; i++) {
-    strip[currentLetterNum].setPixelColor(i, redColor, greenColor, blueColor);
+void setStripColor(int letterNumber, int redValue, int greenValue, int blueValue) {
+  for(int i=0; i<numLed[letterNumber]; i++) {
+    strip[letterNumber].setPixelColor(i, redValue, greenValue, blueValue);
   }
-  strip[currentLetterNum].show();
+  strip[letterNumber].show();
 }
 void allOn() {
-  redColor = FULL_BRIGHT; greenColor = FULL_BRIGHT; blueColor = FULL_BRIGHT;
   for(int i=0; i<NUM_STRIPS;i++) {
-    currentLetterNum = i;
-    setStripColor();  
+    setStripColor(i, FULL_BRIGHT, FULL_BRIGHT, FULL_BRIGHT);  
   }
 }
 
 void allOff() {
-  redColor = OFF; greenColor = OFF; blueColor = OFF;
   for(int i=0; i<NUM_STRIPS;i++) {
-    currentLetterNum = i;
-    setStripColor();  
+    setStripColor(i, OFF, OFF, OFF);  
   }
 }
 
@@ -76,13 +67,8 @@ void doFlash(int numTimes,int myDelay) {
 
 
 void doMarquee() {
-  redColor = FULL_BRIGHT;
-  greenColor = FULL_BRIGHT;
-  blueColor = FULL_BRIGHT;
-
   for(int i=0; i<NUM_STRIPS;i++) {
-   currentLetterNum = i;
-   setStripColor();  
+   setStripColor(i, FULL_BRIGHT, FULL_BRIGHT, FULL_BRIGHT);  
    delay(1000);
   }
   doFlash(3,500);
@@ -96,14 +82,15 @@ void runSpecial(int valType) {
     case 2: allOn(); break;
     case 3: allOff(); break;
   }
-
-  // Reset lights on current letter
-  for(int i=0; i<numLed[currentLetterNum]; i++) {
-    strip[currentLetterNum].setPixelColor(i, redColor, greenColor, blueColor);
-  }
-  strip[currentLetterNum].show();
 }
 
+void resetCommand() {
+  cmd = NULL;
+  curCharNum = 0;
+  for(int i=0; i<7;i++) {
+    valueList[i] = NULL;
+  }
+}
 
 
 void loop()
@@ -116,8 +103,7 @@ void loop()
 
   // Reset whenever an end of command character ";" is read
   if (readChar == ';') {
-    firstChar = NULL;
-    cmd = NULL;
+    resetCommand();
     return;
   }
 
@@ -127,29 +113,36 @@ void loop()
     cmd = readChar;
   }
   else {
+    valueList[curCharNum] = readChar;
     // values are two characters, read the first character and store for next
     // iteration of the loop if one hasn't already been read
-    if (!firstChar) {
-      firstChar = readChar;
-    }
-    else {
+    if(curCharNum == 7) {
+
       char mybuf [3];
-      sprintf(mybuf,"%c%c",firstChar,readChar);
-      int value = strtol(mybuf,NULL,16);
+
+      sprintf(mybuf,"%c%c",valueList[0],valueList[1]);
+      int lightNumber = strtol(mybuf,NULL,16);
+
+      sprintf(mybuf,"%c%c",valueList[2],valueList[3]);
+      int redValue = strtol(mybuf,NULL,16);
+
+      sprintf(mybuf,"%c%c",valueList[4],valueList[5]);
+      int greenValue = strtol(mybuf,NULL,16);
+
+      sprintf(mybuf,"%c%c",valueList[6],valueList[7]);
+      int blueValue = strtol(mybuf,NULL,16);
 
       // After getting the command and value, determine what to execute
       switch(cmd)
       {
-        case 'r': redColor = value; setStripColor();break;
-        case 'g': greenColor = value;  setStripColor();break;
-        case 'b': blueColor = value;  setStripColor();break;
-        case 'l': currentLetterNum = value;  break;
-        case 's': runSpecial(value); break;
+        case 'c': setStripColor(lightNumber, redValue, greenValue, blueValue);break;
+        case 's': runSpecial(lightNumber); break;
       }
       // After running command, clear it before next iteration
       cmd = NULL;
       firstChar = NULL;
     }
+    curCharNum++;
   }
 }
 
