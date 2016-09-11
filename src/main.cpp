@@ -32,7 +32,7 @@ int gearStop = 0;
 void setup()
 {
   // Start serial at 38400 baud
-  Serial.begin(9600);
+  Serial.begin(19200);
   for(int i=0; i<NUM_STRIPS;i++) {
     strip[i].begin();
     strip[i].setBrightness(FULL_BRIGHT);
