@@ -27,6 +27,7 @@ Adafruit_NeoPixel strip[NUM_STRIPS] = {
 char cmd = NULL;
 int curCharNum = 0;
 char valueList[7] = {};
+int gearStop = 0;
 
 void setup()
 {
@@ -36,6 +37,10 @@ void setup()
     strip[i].begin();
     strip[i].setBrightness(FULL_BRIGHT);
   }
+
+  // Pins for Gear
+  pinMode(POWERTAILPIN, OUTPUT);
+  pinMode(REEDSWITCHPIN, INPUT_PULLUP);
 }
 
 void setStripColor(int letterNumber, int redValue, int greenValue, int blueValue) {
@@ -74,13 +79,30 @@ void doMarquee() {
   doFlash(3,500);
 }
 
-void runSpecial(int valType) {
+void gearOn() {
+  gearStop = 0;
+  digitalWrite(POWERTAILPIN, HIGH);
+}
+
+
+void doGear(int turnOn) {
+  if(turnOn) {
+    gearOn();
+  }
+  else {
+    // turn off
+    gearStop = 1;
+  }
+}
+
+void runSpecial(int valType, int valueOne, int valueTwo, int valueThree) {
   switch(valType)
   {
     case 0: doMarquee();break;
-    case 1: doFlash(10,500); break;
-    case 2: allOn(); break;
-    case 3: allOff(); break;
+    case 1: doGear(valueOne);break;
+    case 2: doFlash(10,500); break;
+    case 3: allOn(); break;
+    case 4: allOff(); break;
   }
 }
 
@@ -95,6 +117,15 @@ void resetCommand() {
 
 void loop()
 {
+  if(gearStop == 1) {
+    if(digitalRead(REEDSWITCHPIN) == LOW) {
+      digitalWrite(POWERTAILPIN, LOW);
+    }
+  }
+  else {
+    gearOn();
+  }
+
   if(!Serial.available()) {
     return;
   }
@@ -136,7 +167,7 @@ void loop()
       switch(cmd)
       {
         case 'c': setStripColor(lightNumber, redValue, greenValue, blueValue);break;
-        case 's': runSpecial(lightNumber); break;
+        case 's': runSpecial(lightNumber, redValue, greenValue, blueValue); break;
       }
       // After running command, clear it before next iteration
       resetCommand();
