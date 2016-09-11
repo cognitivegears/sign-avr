@@ -26,7 +26,7 @@ Adafruit_NeoPixel strip[NUM_STRIPS] = {
 // Serial variables
 char cmd = NULL;
 int curCharNum = 0;
-char valueList[8] = {};
+char valueList[7] = {};
 
 void setup()
 {
@@ -87,7 +87,7 @@ void runSpecial(int valType) {
 void resetCommand() {
   cmd = NULL;
   curCharNum = 0;
-  for(int i=0; i<8;i++) {
+  for(int i=0; i<7;i++) {
     valueList[i] = NULL;
   }
 }
@@ -116,20 +116,20 @@ void loop()
     valueList[curCharNum] = readChar;
     // values are two characters, read the first character and store for next
     // iteration of the loop if one hasn't already been read
-    if(curCharNum == 7) {
+    if(curCharNum == 6) {
 
       char mybuf [3];
 
-      sprintf(mybuf,"%c%c",valueList[0],valueList[1]);
+      sprintf(mybuf,"0%c",valueList[0]);
       int lightNumber = strtol(mybuf,NULL,16);
 
-      sprintf(mybuf,"%c%c",valueList[2],valueList[3]);
+      sprintf(mybuf,"%c%c",valueList[1],valueList[2]);
       int redValue = strtol(mybuf,NULL,16);
 
-      sprintf(mybuf,"%c%c",valueList[4],valueList[5]);
+      sprintf(mybuf,"%c%c",valueList[3],valueList[4]);
       int greenValue = strtol(mybuf,NULL,16);
 
-      sprintf(mybuf,"%c%c",valueList[6],valueList[7]);
+      sprintf(mybuf,"%c%c",valueList[5],valueList[6]);
       int blueValue = strtol(mybuf,NULL,16);
 
       // After getting the command and value, determine what to execute
