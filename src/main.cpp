@@ -35,8 +35,8 @@ char firstChar = NULL;
 
 void setup()
 {
-  // Start serial at 115200 baud
-  Serial.begin(115200);
+  // Start serial at 38400 baud
+  Serial.begin(38400);
   for(int i=0; i<NUM_STRIPS;i++) {
     strip[i].begin();
     strip[i].setBrightness(FULL_BRIGHT);
